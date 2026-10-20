@@ -11,6 +11,7 @@ import pandas as pd
 from arcgis.features import FeatureLayerCollection
 from shapely.geometry import shape
 from shapely.geometry.polygon import orient
+from time_settings import apply_time_info
 
 from common import SERVICE_NAME, get_gis
 from schema import HOURLY_LAYER, ZONES_LAYER
@@ -164,6 +165,8 @@ def main():
     # Verify what actually landed on the server
     n_zones = zones_layer.query(return_count_only=True)
     n_points = hourly_layer.query(return_count_only=True)
+    t_min, t_max = apply_time_info(hourly_layer)
+    print(f"Time extent updated: {t_min} -> {t_max}")
     print(f"Server counts: zones={n_zones}, hourly={n_points:,}")
     if (n_zones, n_points) != (len(zones), len(points)):
         raise RuntimeError("Server counts do not match the uploaded data")
@@ -171,3 +174,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

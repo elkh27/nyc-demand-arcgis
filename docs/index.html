@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NYC Lyft Demand Forecast</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="config.js"></script>
+  <script>
+    // The SDK reads the API key from this global when it loads
+    var esriConfig = { apiKey: window.APP_CONFIG.apiKey };
+  </script>
+  <script type="module" src="https://js.arcgis.com/5.1/"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+</head>
+<body>
+  <header>
+    <h1>NYC Lyft Demand Forecast</h1>
+    <p>Day-ahead hourly forecasts of Lyft ride requests for 262 NYC taxi zones, compared with actual demand.</p>
+  </header>
+
+  <main>
+    <div class="map-wrap">
+      <arcgis-map id="map" basemap="arcgis/light-gray" center="-73.94, 40.71" zoom="10"
+                  time-zone="America/New_York">
+        <arcgis-zoom slot="top-left"></arcgis-zoom>
+        <arcgis-legend slot="bottom-left"></arcgis-legend>
+      </arcgis-map>
+      <arcgis-time-slider id="slider" reference-element="map" mode="instant"
+                          time-visible loop></arcgis-time-slider>
+    </div>
+
+    <aside id="panel">
+      <section>
+        <h2 id="time-label">Loading…</h2>
+        <div class="stats">
+          <div><span id="city-pred">–</span><label>Predicted</label></div>
+          <div><span id="city-act">–</span><label>Actual</label></div>
+          <div><span id="city-err">–</span><label>Error</label></div>
+        </div>
+      </section>
+
+      <section>
+        <h3>Show on map</h3>
+        <div id="mode" class="mode">
+          <label><input type="radio" name="mode" value="predicted" checked /> Predicted</label>
+          <label><input type="radio" name="mode" value="actual" /> Actual</label>
+          <label><input type="radio" name="mode" value="error" /> Error</label>
+        </div>
+      </section>
+
+      <section>
+        <h3 id="zone-title">Click a zone on the map</h3>
+        <canvas id="zone-chart" height="230"></canvas>
+        <p id="zone-stats" class="muted"></p>
+      </section>
+
+      <footer class="muted">
+        Model: LightGBM (Poisson), WAPE 18.9% on Oct–Dec 2025.
+        Data: NYC TLC trip records. Built with ArcGIS Maps SDK for JavaScript.
+      </footer>
+    </aside>
+  </main>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
