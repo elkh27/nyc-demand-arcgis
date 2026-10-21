@@ -84,9 +84,8 @@ const fullExtent = hourlyLayer.timeInfo.fullTimeExtent;
 slider.fullTimeExtent = fullExtent;
 slider.stops = { interval: { value: 1, unit: "hours" } };
 
-// Start on Friday Nov 14, 6 PM New York time (23:00 UTC) if it is inside the data
-const friday6pm = new Date("2025-11-14T23:00:00Z");
-const start = friday6pm >= fullExtent.start && friday6pm <= fullExtent.end ? friday6pm : fullExtent.start;
+// Start on tomorrow 6 PM New York time: the last hour of the window is 11 PM tomorrow
+const start = new Date(fullExtent.end.getTime() - 5 * 60 * 60 * 1000);
 slider.timeExtent = { start, end: start };
 
 // ---------- City-wide totals for the selected hour (server-side statistics) ----------
@@ -103,6 +102,13 @@ async function updateCityStats(timeExtent) {
   });
   const { pred, act } = result.features[0].attributes;
   document.getElementById("city-pred").textContent = fmtNum(pred);
+  // Hours in the future have no actual demand yet
+  if (act === null || act === undefined) {
+    document.getElementById("city-act").textContent = "—";
+    document.getElementById("city-err").textContent = "—";
+    document.getElementById("time-label").textContent += " · forecast only";
+    return;
+  }
   document.getElementById("city-act").textContent = fmtNum(act);
   const errPct = act > 0 ? ((pred - act) / act) * 100 : 0;
   document.getElementById("city-err").textContent = `${errPct > 0 ? "+" : ""}${errPct.toFixed(1)}%`;

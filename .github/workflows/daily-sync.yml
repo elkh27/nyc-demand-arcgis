@@ -1,0 +1,31 @@
+name: Daily forecast sync
+
+on:
+  schedule:
+    # 10:17 UTC = early morning in New York; an off-peak minute avoids queue delays
+    - cron: "17 10 * * *"
+  workflow_dispatch:
+    inputs:
+      sim_today:
+        description: "Simulated date (YYYY-MM-DD), empty = derived from today's date"
+        required: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements.txt
+      - run: pip install -r requirements.txt
+      - name: Sync forecasts to ArcGIS
+        working-directory: etl
+        env:
+          ARCGIS_USERNAME: ${{ secrets.ARCGIS_USERNAME }}
+          ARCGIS_PASSWORD: ${{ secrets.ARCGIS_PASSWORD }}
+          SIM_TODAY: ${{ inputs.sim_today }}
+        run: python sync.py
