@@ -1,0 +1,4 @@
+arcgis==2.4.3
+pandas
+pyarrow
+shapely
